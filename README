@@ -1,0 +1,43 @@
+ActsAsRated
+===========
+
+This is a simple plugin to do a simple rating/ranking system over a collection of objects.
+
+Two integer columns are used: raw_rating and ranking.
+
+raw_rating is the raw calculated value of the rules specified in the acts_as_rated block.
+
+ranking is the normalized value.  A raw rating of 0 is always rank 0, otherwise the raw ratings
+are scaled to a range of 1-100.
+
+Two instance methods are added:
+
+explain_rating and calculate_rating.
+
+One class method is added:
+
+update_ranking to update the ranking value.
+
+Example
+=======
+
+	class TestRated < ActiveRecord::Base
+	  acts_as_rated do
+	    desc "Add 10 points if OK"
+	    add 10, :if => :ok
+    
+	    desc "Add -10 points unless not ok"
+	    add -10, :unless => :not_ok
+    
+	    desc "Add age"
+	    add do
+	      52 * age
+	    end
+    
+	    desc "+1 each attendee"
+	    add 1, :count => :num_attendees
+	  end
+	end
+
+
+Copyright (c) 2009 Eric Steil III, released under the MIT license
