@@ -5,8 +5,17 @@ module ActsAsRated
   end
   
   module ClassMethods
-    def acts_as_rated(*opts, &block) 
+    # Enables rating methods on this class
+    #
+    # The supported options are:
+    #
+    # +:ignore_type+ set to +true+ if rankings should not be scoped via STI type.
+    def acts_as_rated(opts={}, &block) 
       cattr_accessor :rating_rules
+      cattr_accessor :acts_as_rated_ignores_type
+      
+      self.acts_as_rated_ignores_type = !!opts[:ignore_type]
+      
       self.rating_rules = ActsAsRated::RatedRules.new
       self.rating_rules.instance_exec &block
   
@@ -27,8 +36,14 @@ module ActsAsRated
         # FROM users u
         # ORDER BY type, ranking DESC;
 
-        max_rating = self.maximum(:raw_rating) || 0
-        min_rating = self.minimum(:raw_rating, :conditions => 'raw_rating > 0') || 0
+        type_str = nil
+        if self.column_names.include? self.inheritance_column
+          the_sti_name = (sti_name == self.base_class.name ? '' : nil)
+          type_str = sanitize_sql_for_conditions(["#{connection.quote_table_name table_name}.#{connection.quote_column_name inheritance_column} = ?", the_sti_name]) if the_sti_name
+        end unless self.acts_as_rated_ignores_type
+        
+        max_rating = self.maximum(:raw_rating, :conditions => type_str) || 0
+        min_rating = self.minimum(:raw_rating, :conditions => "#{type_str ? type_str + " AND" : ''} raw_rating > 0") || 0
         scale_factor = (max_rating - min_rating) / 100.0
         scale_factor = 1.0 if scale_factor == 0
 
@@ -39,7 +54,7 @@ module ActsAsRated
           GREATEST(1, ROUND(
             (#{table_name}.raw_rating - ?) / ?
           ))
-        )}, min_rating, scale_factor]
+        )}, min_rating, scale_factor], type_str
       end
     end
   end
