@@ -46,13 +46,13 @@ module ActsAsRated
         if opts[:if].is_a?(Symbol)
           do_it = obj.send(opts[:if])
         elsif opts[:if].is_a?(Proc)
-          do_it = obj.instance_exec(opts[:if])
+          do_it = obj.instance_exec(&opts[:if])
         end
         
         if opts[:unless].is_a?(Symbol)
           do_it = !obj.send(opts[:unless])
         elsif opts[:unless].is_a?(Proc)
-          do_it = !obj.instance_exec(opts[:unless])
+          do_it = !obj.instance_exec(&opts[:unless])
         end
         
         unless do_it
@@ -64,7 +64,7 @@ module ActsAsRated
         if opts[:count].is_a?(Symbol)
           multiplier = obj.send(opts[:count])
         elsif opts[:count].is_a?(Proc)
-          multiplier = obj.instance_exec(opts[:count])
+          multiplier = obj.instance_exec(&opts[:count])
         else
           multiplier = 1
         end

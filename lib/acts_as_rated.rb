@@ -58,7 +58,7 @@ module ActsAsRated
       end
     end
     
-    def explain_rating
+    def explain_rating(full = false)
       self.transaction do
         final_score, rating_reasons = evaluate_rating
         reasons = []
@@ -66,7 +66,7 @@ module ActsAsRated
         rating_reasons.each do |reason|
           delta, reason_text, score = *reason
         
-          reasons << '%+7d %-50.50s |%8d' % reason
+          reasons << '%+7d %-50.50s |%8d' % reason if full or delta != 0
         end
       
         reasons.join("\n") + ("\n" + '-' * 68 + "\n%7d <-- Final rating" % final_score)
