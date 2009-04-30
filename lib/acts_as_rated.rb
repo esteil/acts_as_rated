@@ -11,8 +11,8 @@ module ActsAsRated
     #
     # +:ignore_type+ set to +true+ if rankings should not be scoped via STI type.
     def acts_as_rated(opts={}, &block) 
-      cattr_accessor :rating_rules
-      cattr_accessor :acts_as_rated_ignores_type
+      class_inheritable_accessor :rating_rules
+      class_inheritable_accessor :acts_as_rated_ignores_type
       
       self.acts_as_rated_ignores_type = !!opts[:ignore_type]
       
@@ -81,10 +81,10 @@ module ActsAsRated
         rating_reasons.each do |reason|
           delta, reason_text, score = *reason
         
-          reasons << '%+7d %-50.50s |%8d' % reason if full or delta != 0
+          reasons << '%+7d | %-60.60s' % reason if full or delta != 0
         end
       
-        reasons.join("\n") + ("\n" + '-' * 68 + "\n%7d <-- Final rating" % final_score)
+        reasons.join("\n") + ("\n" + '-' * 70 + "\n%7d <-- Final rating" % final_score)
       end
     end
   end

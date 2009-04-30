@@ -2,8 +2,8 @@ module ActsAsRated
   class RatedRules
     unloadable
     
-    cattr_accessor :ruleset
-    cattr_accessor :next_description
+    attr_accessor :ruleset
+    attr_accessor :next_description
     
     def initialize
       @ruleset = []
